@@ -1,0 +1,7 @@
+syntax = "proto3";
+package hide_n_hunt;
+
+message Location {
+    double latitude = 1;
+    double longitude = 2;
+}
