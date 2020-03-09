@@ -2,56 +2,77 @@
 import csv
 import sys
 import time
-import threading
 
 import paho.mqtt.client as mqtt
-import proto.Location_pb2 as proto
 
-if len(sys.argv) != 3:
-    print("Usage: ./beacon game_id replay_file")
-    print("\tgame_id is a positive integer")
-    print("\treplay_file is a csv file with columns(player_id, timestamp, latitude, longitude)")
+import proto.Location_pb2
+import proto.Catch_pb2
+from mqtt_helper import connect_mqtt_with_credentials
+
+if len(sys.argv) < 3:
+    print("Usage: ./beacon game_id replay_file [options]")
+    print("\tgame_id      is a positive integer")
+    print("\treplay_file  is a csv file with columns(player_id, timestamp, latitude, longitude)")
+    print("\tEvent type to publish:")
+    print("\t\t--all    publish all events")
+    print("\t\t--loc    publish location events(default)")
+    print("\t\t--catch  publish catch events")
     exit(0)
 
 gameID = sys.argv[1]
-b = threading.Semaphore(0)
+
+if len(sys.argv) > 3:
+    options = list(map(lambda o: o[2:], sys.argv[3:]))  # Removing "--" from each option
+else:
+    options = ["loc"]
+
+mqtt_client = mqtt.Client()
+connect_mqtt_with_credentials(mqtt_client)
+mqtt_client.loop_start()
 
 
-def on_connect(client, userdata, flags, rc):
-    b.release()
+def publish_loc(csv_line):
+    payload = proto.Location_pb2.Location()
+    payload.latitude = float(csv_line[2])
+    payload.longitude = float(csv_line[3])
+    mqtt_client.publish(gameID + "/" + csv_line[1], payload.SerializeToString())
 
 
-client = mqtt.Client()
-client.on_connect = on_connect
-client.username_pw_set("jprnwwdd:jprnwwdd", "aDs-KxLr1cTqGgBSWKExxmCUXBcsWfOE")
-client.connect("kangaroo.rmq.cloudamqp.com", 1883)
-client.loop_start()
+def publish_catch(csv_line):
+    payload = proto.Catch_pb2.Catch()
+    payload.predatorID = int(csv_line[2])
+    payload.preyID = int(csv_line[3])
+    mqtt_client.publish(gameID + "/catch", payload.SerializeToString())
 
-current_time = 0
-next_row = []
+
+def handle_line(csv_line):
+    if "all" in options or csv_line[0] in options:
+        print(csv_line)
+        {
+            "loc": publish_loc,
+            "catch": publish_catch,
+        }[csv_line[0]](csv_line)
+    else:
+        print("(ignored) " + str(csv_line))
+
 
 with open(sys.argv[2]) as file:
     # CSV FORMAT:
-    # 0          1          2         3
-    # player_id, timestamp, latitude, longitude
+    # 0 (event)  1           2            3          4
+    # loc,       timestamp,  player_id,   latitude,  longitude
+    # catch,     timestamp,  predatorID,  preyID
     data = csv.reader(file)
 
-    b.acquire()
+    current_time = 0
+    next_row = []
+    print("Starting to publish events")
     for row in data:
         if current_time == 0:
             current_time = int(row[1])
         else:
-            payload = proto.Location()
-            payload.latitude = float(next_row[2])
-            payload.longitude = float(next_row[3])
-            print(next_row)
-            client.publish(gameID+"/"+next_row[0], payload.SerializeToString())
+            handle_line(next_row)
         next_row = row
         time.sleep(int(row[1]) - current_time)
         current_time = int(row[1])
-    print(next_row)
-    payload = proto.Location()
-    payload.latitude = float(next_row[2])
-    payload.longitude = float(next_row[3])
-    client.publish(gameID+"/"+next_row[0], payload.SerializeToString())
 
+    handle_line(next_row)

@@ -1,5 +1,5 @@
 syntax = "proto3";
-package hide_n_hunt;
+package ch.epfl.sdp.game.comm;
 
 message Location {
     double latitude = 1;
