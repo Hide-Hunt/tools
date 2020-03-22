@@ -1,0 +1,9 @@
+syntax = "proto3";
+package ch.epfl.sdp.game.comm;
+
+import "proto/Location.proto";
+
+message LocationEvent {
+    int32 playerID = 1;
+    Location location = 2;
+}

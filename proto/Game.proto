@@ -1,0 +1,25 @@
+syntax = "proto3";
+package ch.epfl.sdp.game.comm;
+
+import "proto/GameEvent.proto";
+
+message Game {
+    int32 id = 1;
+    string name = 2;
+    int32 adminID = 3;
+    fixed32 start_timestamp = 4;
+    fixed32 end_timestamp = 5;
+
+    repeated Player players = 10;
+    repeated GameEvent events = 11;
+}
+
+message Player {
+    int32 id = 1;
+    Faction faction = 2;
+}
+
+enum Faction {
+    PREY = 0;
+    PREDATOR = 1;
+}

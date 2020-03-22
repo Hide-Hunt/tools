@@ -1,0 +1,13 @@
+syntax = "proto3";
+package ch.epfl.sdp.game.comm;
+
+import "proto/CatchEvent.proto";
+import "proto/LocationEvent.proto";
+
+message GameEvent {
+    fixed32 timestamp = 1;
+    oneof payload {
+        CatchEvent catch_event = 10;
+        LocationEvent location_event = 11;
+    }
+}

@@ -4,7 +4,7 @@ import time
 
 import paho.mqtt.client as mqtt
 
-from proto import Location_pb2, Catch_pb2
+from proto import GameEvent_pb2
 from mqtt_helper import connect_mqtt_with_credentials
 
 if len(sys.argv) != 3:
@@ -17,13 +17,16 @@ if len(sys.argv) != 3:
 def on_message(client, obj, msg):
     topic = msg.topic.split("/")
     if topic[1] == "catch":
-        payload = Catch_pb2.Catch()
+        payload = GameEvent_pb2.GameEvent()
         payload.ParseFromString(msg.payload)
-        print("catch," + str(int(time.time())) + "," + str(payload.predatorID) + "," + str(payload.preyID))
+        print("{{ timestamp: {}; catch_event: {{ predatorID: {}; preyID: {} }} }}"
+              .format(int(time.time()), payload.catch_event.predatorID, payload.catch_event.preyID))
     else:
-        payload = Location_pb2.Location()
+        payload = GameEvent_pb2.GameEvent()
         payload.ParseFromString(msg.payload)
-        print("loc," + str(int(time.time())) + "," + topic[1] + "," + str(payload.latitude) + "," + str(payload.longitude))
+        print("\t{{ timestamp: {}; location_event: {{ playerID: {}; location: {{ latitude: {}; longitude: {} }} }} }}"
+              .format(int(time.time()), topic[1],
+                      payload.location_event.location.latitude, payload.location_event.location.longitude))
 
 
 gameID = sys.argv[1]
@@ -44,8 +47,9 @@ mqtt_client.subscribe(str(gameID) + "/catch")  # Catch topic
 for playerID in playerIDs:
     mqtt_client.subscribe(str(gameID) + "/" + str(playerID))
 
-print("For game with id="+gameID)
+print("For game with id=" + gameID)
 print("\t-> Subscribed to catch topic")
 print("\t-> Subscribed to player topics with ids in " + str(playerIDs))
+print("Messages:")
 
 mqtt_client.loop_forever()

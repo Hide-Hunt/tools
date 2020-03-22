@@ -5,8 +5,9 @@ import time
 
 import paho.mqtt.client as mqtt
 
-import proto.Location_pb2
-import proto.Catch_pb2
+import proto.GameEvent_pb2
+import proto.LocationEvent_pb2
+import proto.CatchEvent_pb2
 from mqtt_helper import connect_mqtt_with_credentials
 
 if len(sys.argv) < 3:
@@ -32,16 +33,16 @@ mqtt_client.loop_start()
 
 
 def publish_loc(csv_line):
-    payload = proto.Location_pb2.Location()
-    payload.latitude = float(csv_line[2])
-    payload.longitude = float(csv_line[3])
-    mqtt_client.publish(gameID + "/" + csv_line[1], payload.SerializeToString())
+    payload = proto.GameEvent_pb2.GameEvent()
+    payload.location_event.location.latitude = float(csv_line[3])
+    payload.location_event.location.longitude = float(csv_line[4])
+    mqtt_client.publish(gameID + "/" + csv_line[2], payload.SerializeToString())
 
 
 def publish_catch(csv_line):
-    payload = proto.Catch_pb2.Catch()
-    payload.predatorID = int(csv_line[2])
-    payload.preyID = int(csv_line[3])
+    payload = proto.GameEvent_pb2.GameEvent()
+    payload.catch_event.predatorID = int(csv_line[2])
+    payload.catch_event.preyID = int(csv_line[3])
     mqtt_client.publish(gameID + "/catch", payload.SerializeToString())
 
 
