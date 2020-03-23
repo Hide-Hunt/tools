@@ -4,7 +4,7 @@ import time
 
 import paho.mqtt.client as mqtt
 
-from proto import GameEvent_pb2
+from proto import Location_pb2, CatchEvent_pb2
 from mqtt_helper import connect_mqtt_with_credentials
 
 if len(sys.argv) != 3:
@@ -17,16 +17,15 @@ if len(sys.argv) != 3:
 def on_message(client, obj, msg):
     topic = msg.topic.split("/")
     if topic[1] == "catch":
-        payload = GameEvent_pb2.GameEvent()
+        payload = CatchEvent_pb2.CatchEvent()
         payload.ParseFromString(msg.payload)
         print("{{ timestamp: {}; catch_event: {{ predatorID: {}; preyID: {} }} }}"
-              .format(int(time.time()), payload.catch_event.predatorID, payload.catch_event.preyID))
+              .format(int(time.time()), payload.predatorID, payload.preyID))
     else:
-        payload = GameEvent_pb2.GameEvent()
+        payload = Location_pb2.Location()
         payload.ParseFromString(msg.payload)
         print("\t{{ timestamp: {}; location_event: {{ playerID: {}; location: {{ latitude: {}; longitude: {} }} }} }}"
-              .format(int(time.time()), topic[1],
-                      payload.location_event.location.latitude, payload.location_event.location.longitude))
+              .format(int(time.time()), topic[1], payload.latitude, payload.longitude))
 
 
 gameID = sys.argv[1]
