@@ -33,9 +33,9 @@ mqtt_client.loop_start()
 
 def publish_loc(csv_line):
     payload = proto.Location_pb2.Location()
-    payload.latitude = float(csv_line[2])
-    payload.longitude = float(csv_line[3])
-    mqtt_client.publish(gameID + "/" + csv_line[1], payload.SerializeToString())
+    payload.latitude = float(csv_line[3])
+    payload.longitude = float(csv_line[4])
+    mqtt_client.publish(gameID + "/" + csv_line[2], payload.SerializeToString())
 
 
 def publish_catch(csv_line):
