@@ -1,6 +1,9 @@
-id: 42
+# proto-file: proto/Game.proto
+# proto-message: Game
+
+id: "42"
 name: "Run to Sat!"
-adminID: 1
+adminID: "1"
 start_timestamp: 1584826584
 end_timestamp: 1584826663
 players: [

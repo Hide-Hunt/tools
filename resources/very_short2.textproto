@@ -1,0 +1,17 @@
+# proto-file: proto/Game.proto
+# proto-message: Game
+
+id: "37"
+name: "Some game name"
+adminID: "4"
+start_timestamp: 8315
+end_timestamp: 9424
+players: [
+	{ id: 0; faction: PREDATOR },
+	{ id: 1; faction: PREY }
+]
+events: [
+	{ timestamp: 8315; location_event: { playerID: 1; location: { latitude: 46.67; longitude: 6.51 } } },
+	{ timestamp: 8316; location_event: { playerID: 0; location: { latitude: 46.51; longitude: 6.56 } } },
+	{ timestamp: 9424; catch_event:    { predatorID: 0; preyID: 1 } }
+]

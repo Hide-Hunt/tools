@@ -4,9 +4,9 @@ package ch.epfl.sdp.game.comm;
 import "proto/GameEvent.proto";
 
 message Game {
-    int32 id = 1;
+    string id = 1;
     string name = 2;
-    int32 adminID = 3;
+    string adminID = 3;
     fixed32 start_timestamp = 4;
     fixed32 end_timestamp = 5;
 

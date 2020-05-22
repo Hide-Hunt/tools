@@ -1,0 +1,12 @@
+# proto-file: proto/Game.proto
+# proto-message: Game
+
+id: "42"
+name: "Some game name"
+adminID: "1"
+start_timestamp: 1583
+end_timestamp: 2494
+players: []
+events: [
+	{ timestamp: 1583; location_event: { playerID: 0; location: { latitude: 46.48; longitude: 6.56 } } }
+]
